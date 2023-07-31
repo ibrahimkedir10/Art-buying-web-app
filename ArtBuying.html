@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>
+    Ibrahim's Art Anatomy Books
+</title>
+<!--ibraim kedir-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>title</title>
+</head>
+
+<body
+    style="background-color: rgb(190, 163, 126); font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">
+    <style>
+        span {
+            font-style: oblique;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-gap: 1px;
+            grid-template-columns: 100px 200px 200px;
+            width: 502px;
+            background-color: rgb(139, 77, 77);
+            color: #111;
+            height: 250px;
+        }
+
+        .box {
+            background-color: rgb(65, 114, 99);
+            color: #111;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 1em;
+            border: solid black 1px;
+        }
+
+        .a {
+
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .b {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .c {
+            grid-column: 3;
+            grid-row: 1 / span 5;
+        }
+
+        .d {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .e {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .f {
+            grid-column: 1;
+            grid-row: 3;
+        }
+
+        .g {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        .h {
+            grid-column: 1;
+            grid-row: 4;
+        }
+
+        .i {
+            grid-column: 2;
+            grid-row: 4;
+        }
+
+        .j {
+            grid-column: 1;
+            grid-row: 5;
+        }
+
+        .k {
+            grid-column: 2;
+            grid-row: 5;
+        }
+
+        .l {
+            grid-column: 1;
+            grid-row: 6;
+        }
+
+        .m {
+            grid-column: 2;
+            grid-row: 6;
+        }
+
+        .n {
+            grid-column: 3;
+            grid-row: 6;
+        }
+
+        .o {
+            grid-column: 1 / span 3;
+            grid-row: 7;
+        }
+    </style>
+    </head>
+
+    <body
+        style="background-color: rgb(132, 204, 204); font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">
+        <h1>
+            <header>Ibrahim Kedir's Art Anatomy Books</header>
+        </h1>
+        <div class="wrapper">
+            <div class="box a">Title:</div>
+            <div class="box b"><select id="selArt"></select></div>
+            <div class="box c"><img id="imgBook" alt="image of book" src="" width="190" height="350" /></div>
+            <div class="box d">Author:</div>
+            <div class="box e"><span id="spnAuthor"></span></div>
+            <div class="box f">ISBN</div>
+            <div class="box g"><span id="spnISBN"></span></div>
+            <div class="box h">Number of pages:</div>
+            <div class="box i"><span id="spnPages"></span></div>
+            <div class="box j">Price:</div>
+            <div class="box k"><span id="spnPrice"></span></div>
+            <div class="box l"><button id="btncart" onclick="handlecart()">add to Cart</button></div>
+            <div class="box m">Total:</div>
+            <div class="box n"><span id="spnTotal">$0.00</span></div>
+            <div class="box o"><textarea rows=5 cols=60 id="totalCart"></textarea></div>
+
+        </div>
+
+
+
+        <script>
+            // Ibrahim Kedir
+            document.getElementById("selArt").addEventListener("change", selectArt)
+
+            // declare an object
+            let myJSON = [];
+            //  myJSON[i] = new jason(...subdata);
+
+            // start fetching ****************************************************************************************
+            fetch('ArtAnatomy.json')
+                .then(function (response) {
+                    // "promise" that returns JSON from file read
+                    return response.json();
+                })
+                .then(function (data) {
+                    /*
+                        fetching the data from the file is ASYNCHRONOUS so make sure you do most of the steps that involve 
+                        the data (parsing, loading options in drop-down select, and triggering select change event within 
+                        the promises
+                    */
+
+                    myJSON = data;  //set global variable myJSON equal to data argument from fetch
+                    /*
+                        the JSON file has the structure that there is an array 
+                        of individual dog objects with properties such as dogName, dogHeight, dogDesc
+                    */
+
+                    //load up dogs into select
+                    let mySelect = document.getElementById("selArt");
+                    // this time myJSON is an array
+                    myJSON.map(function (obj, i) {
+                        let myOption = document.createElement("option");
+                        myOption.text = obj.book_title;  //dogName is a property found in the JSON file
+                        myOption.value = i;
+                        mySelect.add(myOption, null);
+                    });
+
+                    // trigger a change event for the drop-down select
+                    mySelect.value = Math.floor(Math.random() * myJSON.length);
+                    let event = new Event('change');
+                    mySelect.dispatchEvent(event);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                }) // end of fetching
+
+            // when user selects a dog
+            function selectArt() {
+                let myIndex = document.getElementById("selArt").value;
+                let userArt = myJSON[myIndex];  // this changed now myJSON is array; previously myJSON.dogs was the array
+                document.getElementById("spnAuthor").innerHTML = userArt.book_author;
+                document.getElementById("spnISBN").innerHTML = userArt.book_isbn;
+                document.getElementById("spnPages").innerHTML = userArt.book_page_no;
+                document.getElementById("spnPrice").innerHTML = userArt.book_price;
+                document.getElementById("imgBook").src = userArt.book_cover;
+            }
+
+
+
+            // price calculator 
+
+            let cart = [];
+            let carttoal = [];
+
+
+            function handlecart() {
+                let myIndex = document.getElementById("selArt").value;
+                var price;
+                price = parseFloat(document.getElementById("spnPrice").innerHTML);
+                carttoal.push(price);
+                var sumOfCart = carttoal.reduce(function (a, b) {
+                    return a + b;
+                }, 0);
+                cart.push(myJSON[myIndex].book_title + ", $" + price + ", total: $" + (sumOfCart.toFixed(2, 0)));
+
+
+
+
+                document.getElementById("spnTotal").innerHTML = "$" + (sumOfCart.toFixed(2, 0));
+                document.getElementById("totalCart").value = (cart.join("\n"));
+
+
+            }
+
+
+
+        </script>
+
+
+
+
+    </body>
+
+</html>
